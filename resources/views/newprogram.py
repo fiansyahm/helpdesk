@@ -1,54 +1,3 @@
-from flask import Flask, render_template, redirect, url_for,request
-from flask import make_response
-from flask_cors import CORS
-
-import io
-import random
-from flask import Response
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-app = Flask(__name__)
-CORS(app)
-
-@app.route("/")
-def home():
-    return "hi"
-@app.route("/index")
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-   message = None
-   if request.method == 'POST':
-        datafromjs = request.form['mydata']
-        # result = "return this"
-        # resp = make_response('{"response": '+result+'}')
-        # resp.headers['Content-Type'] = "application/json"
-        # return resp
-        # return render_template('login.html', message='')
-
-        fig = Figure()
-        axis = fig.add_subplot(1, 1, 1)
-        xs = range(100)
-        ys = [random.randint(1, 50) for x in xs]
-        axis.plot(xs, ys)
-        import urllib.parse
-        output = io.BytesIO()
-        FigureCanvas(fig).print_png(output)
-        return Response(output.getvalue(), mimetype='image/png')
-   else:
-        fig = Figure()
-        axis = fig.add_subplot(1, 1, 1)
-        xs = range(100)
-        ys = [random.randint(1, 50) for x in xs]
-        axis.plot(xs, ys)
-        
-        output = io.BytesIO()
-        FigureCanvas(fig).print_png(output)
-        return Response(output.getvalue(), mimetype='image/png')
-
-
-
 def getData():
         from tabulate import tabulate
         title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
@@ -191,17 +140,14 @@ def makeTermGraph(table2):
     edge_labels = nx.get_edge_attributes(G, "weight")
     nx.draw_networkx_edge_labels(G, pos, edge_labels)
 
-    # ax = plt.gca()
-    # ax.margins(0.08)
-    # plt.axis("off")
-    # plt.tight_layout()
-    # print("term Graph")
-    # plt.show()
-    # return plt
+    ax = plt.gca()
+    ax.margins(0.08)
+    plt.axis("off")
+    plt.tight_layout()
+    print("term Graph")
+    plt.show()
 
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    return buf
+
 
     # G = nx.from_numpy_matrix(np.matrix(table2), create_using=nx.DiGraph)
     # layout = nx.spring_layout(G)
@@ -278,22 +224,8 @@ def rank(pretable3,lenauthor):
     table5=pd.DataFrame(table4)
     print("tabel 3: Ranking")
     print(table5.T)
-    import plotly.figure_factory as ff
-    fig =  ff.create_table(table5)
-    fig.update_layout(
-        autosize=False,
-        width=500,
-        height=200,
-    )
-    fig.write_image("table_plotly.png", scale=2)
-    return table4
-
-
-
-@app.route('/data/<name>', methods=['GET', 'POST'])
-
-def data(name):
-    if request.method == 'POST':
+    return table5.T        
+def data():
     # tabel 1
         table=getData();
     # get pair ArticleId,Author,& References
@@ -314,41 +246,14 @@ def data(name):
         #     print(x)
     # get data to make table 2(step 2)
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)
-        if name == "graph":
-        # Make Term Graph
-            output=makeTermGraph(table2)
-            output.seek(0)
-            import base64
-            my_base64_jpgData = base64.b64encode(output.read())
-            return my_base64_jpgData
-            return Response(output.getvalue(), mimetype='image/png') 
-        elif name == "rank":
-        # add total coloum & row in table 2
-            raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)
-        # makeNewAdjMatrix
-            newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
-        # rank author
-            return rank(newAdjMatrixs,len(authors))  
+    # Make Term Graph
+        makeTermGraph(table2)
+    # add total coloum & row in table 2
+        raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)
+    # makeNewAdjMatrix
+        newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
+    # rank author
+        rank(newAdjMatrixs,len(authors))    
 
 if __name__ == "__main__":
-    app.run(debug = True)
-
-# fig = Figure()
-#         axis = fig.add_subplot(1, 1, 1)
-#         xs = range(100)
-#         ys = [random.randint(1, 50) for x in xs]
-#         axis.plot(xs, ys)
-#         output = io.BytesIO()
-
-#         from io import BytesIO
-#         from PIL import Image, ImageDraw
-#         image = Image.new("RGB", (300, 50))
-#         draw = ImageDraw.Draw(image)
-#         draw.text((0, 0), "This text is drawn on image")
-
-#         image.save(output, 'PNG')
-#         import base64
-#         return base64.b64encode(output.getvalue()).decode()
-        
-#         FigureCanvas(fig).print_png(output)
-#         return Response(output.getvalue(), mimetype='image/png')
+    data()

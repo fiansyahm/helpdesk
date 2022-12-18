@@ -2,11 +2,15 @@ from flask import Flask, render_template, redirect, url_for,request
 from flask import make_response
 from flask_cors import CORS
 
+
 import io
 import random
 from flask import Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib.pylab import *
 
 app = Flask(__name__)
 CORS(app)

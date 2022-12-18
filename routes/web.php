@@ -19,7 +19,7 @@ use Jenssegers\Agent\Agent;
 
 
 Route::get('/', function () {
-    return view('flash');
+    return view('home');
 });
 
 Route::get('/data/rank', function () {

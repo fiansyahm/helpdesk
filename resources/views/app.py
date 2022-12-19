@@ -297,7 +297,7 @@ def rank(pretable3,lenauthor):
 @app.route('/data/<name>', methods=['GET', 'POST'])
 
 def data(name):
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
     # tabel 1
         table=getData();
     # get pair ArticleId,Author,& References
@@ -324,8 +324,10 @@ def data(name):
             output.seek(0)
             import base64
             my_base64_jpgData = base64.b64encode(output.read())
-            return my_base64_jpgData
-            return Response(output.getvalue(), mimetype='image/png') 
+            if request.method == 'GET':
+                return Response(output.getvalue(), mimetype='image/png') 
+            else:
+                return my_base64_jpgData
         elif name == "rank":
         # add total coloum & row in table 2
             raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)

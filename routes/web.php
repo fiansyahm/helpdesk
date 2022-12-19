@@ -29,7 +29,9 @@ Route::get('/data/rank', function () {
         'name' => 'Steve',
         'role' => 'Network Administrator',
     ]);
-    return $response;
+    // return json_decode($response);
+    return view('rank', ['rank' => json_decode($response)]);
+
 });
 Route::get('/data/graph', function () {
     $response = Http::post('http://127.0.0.1:5000/data/graph', [

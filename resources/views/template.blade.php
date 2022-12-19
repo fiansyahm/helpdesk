@@ -11,6 +11,14 @@
 
   <title>quality assesmen tools</title>
   <link rel="icon" href='https://i.ibb.co/M8FSKnL/Logo-Izin-Termurah.jpg'>
+<!-- <style>
+  th,tr{ 
+    display: block; float: left; 
+  }
+  td { 
+    display: block; 
+  }
+</style> -->
 </head>
 
 <body>

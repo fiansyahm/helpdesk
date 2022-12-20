@@ -53,10 +53,13 @@ def login():
 
 
 
-def getData():
+def getData(data=None):
         from tabulate import tabulate
         title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
-        table = [  
+        print("data masukan:")
+        print(data)
+        if data==None:
+            table = [  
                 [ "a1", ['a','b','c'],   ['a','b','c','k','l']    ,'1993',['p1','p2']                                              ]
                 , [ "a2", ['c','d','e'],   ['a','c','d','e','m','n'],'1993',['p1','p3']                                              ]
                 , [ "a3", ['f','g','h'],   ['c','d','f','g','h','o'],'1993',['p2','p4','p5']                                         ]
@@ -64,6 +67,8 @@ def getData():
                 , [ "a5", ['dj','dk'],     ['a','dj','dk','m','r']  ,'1994',['p1','p7']      ,['a1','a2','a3']                       ]
                 , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
                 ]
+        else:
+            table=data
         print("tabel 1")
         print(title)
         print(tabulate(table))
@@ -299,7 +304,16 @@ def rank(pretable3,lenauthor):
 def data(name):
     if request.method == 'POST' or request.method == 'GET':
     # tabel 1
-        table=getData();
+        # requestjson=request.get_json()
+        # if request.method == 'POST':
+        #     table=getData(1,requestjson["data"]);
+        # if request.method == 'GET':
+        #     table=getData(0,None);
+        if request.method == 'POST':
+            table=getData(request.get_json()["data"]);
+        elif request.method == 'GET':
+            table=getData();
+        
     # get pair ArticleId,Author,& References
     # get authors
         pairs,authors=getArticleIdAuthorReferencesAndAuthor(table)

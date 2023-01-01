@@ -50,8 +50,9 @@ Route::get('/data/graph', function () {
             , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
             ]
     ]);
-    return view('flash', ['src' => "data:image/png;base64, $response"]);
+    return view('graph', ['src' => "data:image/png;base64, $response"]);
 });
+
 
 
 Route::get('/dashboard', function () {

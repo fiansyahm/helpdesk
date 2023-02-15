@@ -8,10 +8,9 @@
         <thead>
             <tr>
                 <th class="text-center" scope="row" rowspan="{{count($rank)}}">Iterasi\Penulis</th>
-                @for ($i = 1; $i <= 9; $i++)
-                
+                @foreach ($authors as $i)
                     <th scope="col">{{$i}}</th>
-                @endfor 
+                @endforeach 
             </tr>
         </thead>
         <tbody>

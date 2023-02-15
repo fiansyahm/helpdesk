@@ -348,7 +348,7 @@ def data(name):
         # makeNewAdjMatrix
             newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
         # rank author
-            return rank(newAdjMatrixs,len(authors))  
+            return [authors,rank(newAdjMatrixs,len(authors))]  
 
 if __name__ == "__main__":
     app.run(debug = True)

@@ -124,7 +124,7 @@ def getTable2Data(pairs,author_matrix):
 
             for penulis in penulisList:
                 for child in authorListExpand:
-                    if penulis is child:
+                    if penulis == child:
                         continue
                     print("penulis:",penulis,child)
                     try:

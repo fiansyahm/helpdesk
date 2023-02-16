@@ -199,6 +199,7 @@ def makeNewAdjMatrix(pretable3,lenauthor):
     print("tabel 3:new adj Matrix")
     print(table3)
     return pretable3
+
 def rank(pretable3,lenauthor):
     import numpy as np
     import pandas as pd

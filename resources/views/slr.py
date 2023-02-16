@@ -220,11 +220,13 @@ def rank(pretable3,lenauthor):
         #print(ns)
         row=rowbaru
     rank=[sorted(row,reverse=True).index(x) for x in row]
+    rank = [x + 1 for x in rank]
     table4.append(rank)   
     table5=pd.DataFrame(table4)
     print("tabel 3: Ranking")
     print(table5.T)
     return table5.T        
+
 def data():
     # tabel 1
         table=getData();

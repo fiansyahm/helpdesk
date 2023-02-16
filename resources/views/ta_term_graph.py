@@ -68,6 +68,12 @@ for x in author_matrix:
 
 """Proses Perhitungan Degree of Interest"""
 
+
+def index_2d(myList, v):
+    for i, x in enumerate(myList):
+        if v in x:
+            return i #, x.index(v)
+
 for i in pairs:
   try:
     penulisList=i[1]
@@ -75,7 +81,8 @@ for i in pairs:
     authorListExpand=[]
     print(penulisList+authorList)
     for author in authorList:
-      row_author=pairs[index_2d(pairs, author)][1]
+      row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
+      # row_author=pairs[index_2d(pairs, author)][1]
       print(row_author)
       for every_author in row_author:
         print(every_author)
@@ -108,10 +115,7 @@ for i in pairs:
   except:
     continue
 
-def index_2d(myList, v):
-    for i, x in enumerate(myList):
-        if v in x:
-            return i #, x.index(v)
+
 
 """Data Hasil Perhitungan Degree of Interest (blm dikasih tabel)"""
 
@@ -262,6 +266,7 @@ for y in range(100):
    #print(ns)
    row=rowbaru
 rank=[sorted(row,reverse=True).index(x) for x in row]
+rank = [x + 1 for x in rank]
 table4.append(rank)   
 
 table5=pd.DataFrame(table4)

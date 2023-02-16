@@ -110,7 +110,8 @@ def getTable2Data(pairs,author_matrix):
             authorListExpand=[]
             print(penulisList+authorList)
             for author in authorList:
-                row_author=pairs[index_2d(pairs, author)][1]
+                row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
+                # row_author=pairs[index_2d(pairs, author)][1]
                 print(row_author)
                 for every_author in row_author:
                     print(every_author)
@@ -140,6 +141,7 @@ def index_2d(myList, v):
     for i, x in enumerate(myList):
         if v in x:
             return i #, x.index(v)
+        
 def makeTable2(author_matrix,authors):
     import pandas as pd
     pretable2=[]
@@ -283,18 +285,11 @@ def rank(pretable3,lenauthor):
         #print(ns)
         row=rowbaru
     rank=[sorted(row,reverse=True).index(x) for x in row]
+    rank = [x + 1 for x in rank]
     table4.append(rank)   
     table5=pd.DataFrame(table4)
     print("tabel 3: Ranking")
     print(table5.T)
-    import plotly.figure_factory as ff
-    fig =  ff.create_table(table5)
-    fig.update_layout(
-        autosize=False,
-        width=500,
-        height=200,
-    )
-    fig.write_image("table_plotly.png", scale=2)
     return table4
 
 

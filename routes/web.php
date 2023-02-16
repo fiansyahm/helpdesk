@@ -34,14 +34,28 @@ Route::get('/data/rank', function () {
     $flag=0;
     foreach ($data as $row) {
         $flag++;
-        if($flag>25) break;
+        
+        if($flag>28) break;
         $keywords = preg_split('/\s*,\s*/', $row['keywords']);
         $authors = preg_split('/\s*,\s*/', $row['authors']);
+        foreach ($authors as $key => $author) {
+            if (strlen($author) == 1) {
+              unset($authors[$key]);
+            }
+        }  
         $citingNew = preg_split('/\s*;\s*/', $row['citing_new']);
         $abstracts = $keywords;
-        $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
+        // if($flag==29){
+        //     return [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
+        // } 
+        if(strlen($row['citing_new'])==1){
+            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors];
+        }         
+        else{
+            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
+        }    
     }
-    for($i=0;$i<500;$i++){
+    for($i=0;$i<1;$i++){
         array_push($result,["a100",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 1"],["a1"]]);
         array_push($result,["a101",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 2"],["a1"]]);
         array_push($result,["a102",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 3"],["E01"]]);

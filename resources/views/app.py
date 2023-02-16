@@ -326,6 +326,8 @@ def data(name):
         # for x in author_matrix_and_relation:
         #     print(x)
     # get data to make table 2(step 2)
+
+    # errornyadisini
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)
         if name == "graph":
         # Make Term Graph

@@ -134,88 +134,6 @@ def makeTable2(author_matrix,authors):
     print(table2)
     return table2,pretable2
 
-# def makeTermGraph(table2,authors):
-#     import numpy as np
-#     import matplotlib.pyplot as plt
-#     import networkx as nx
-   
-#     print("tabel & authors genk")
-#     print(table2)
-#     print(authors)
-
-#     G = nx.Graph()
-#     rows1, cols1 = np.where(table2 == 1)
-#     edges1 = zip(rows1.tolist(), cols1.tolist())
-#     for x,y in edges1:
-#         G.add_edge(x, y, weight=1)
-#     rows2, cols2 = np.where(table2 == 2)
-#     edges2 = zip(rows2.tolist(), cols2.tolist())
-#     for x,y in edges2:
-#         G.add_edge(x, y, weight=2)
-
-#     elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] ==1 ]
-#     esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] == 2]
-
-#     pos = nx.spring_layout(G, seed=7)  # positions for all nodes - seed for reproducibility
-
-#     # nodes
-#     nx.draw_networkx_nodes(G, pos, node_size=700)
-
-#     # edges
-#     nx.draw_networkx_edges(G, pos, edgelist=elarge, width=6)
-#     nx.draw_networkx_edges(
-#         G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color="b", style="dashed"
-#     )
-
-#     # node labels
-#     nx.draw_networkx_labels(G, pos, font_size=20, font_family="sans-serif")
-#     # edge weight labels
-#     edge_labels = nx.get_edge_attributes(G, "weight")
-#     nx.draw_networkx_edge_labels(G, pos, edge_labels)
-
-#     buf = io.BytesIO()
-#     plt.savefig(buf, format='png')
-#     return buf
-
-
-# def makeTermGraph(table, authors,author_matrix):
-#     import numpy as np
-#     import matplotlib.pyplot as plt
-#     import networkx as nx
-#     author_matrix = np.array(author_matrix)
-#     G = nx.Graph()
-#     rows, cols = np.where(table > 0)
-#     edges = zip(rows.tolist(), cols.tolist())
-#     for x,y in edges:
-#         value = author_matrix[np.where((author_matrix[:, 0] == authors[x]) & (author_matrix[:, 1] == authors[y]))][0, 2]
-#         G.add_edge(authors[x], authors[y], weight=value)
-
-#     elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"].astype(int) <= 1 ]
-#     esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"].astype(int) >= 2]
-
-#     pos = nx.spring_layout(G, seed=7)  # positions for all nodes - seed for reproducibility
-
-#     # nodes
-#     nx.draw_networkx_nodes(G, pos, node_size=700)
-
-#     # edges
-#     nx.draw_networkx_edges(G, pos, edgelist=elarge, width=6)
-#     nx.draw_networkx_edges(
-#         G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color="b", style="dashed"
-#     )
-
-#     # node labels
-#     nx.draw_networkx_labels(G, pos, font_size=20, font_family="sans-serif")
-
-#     # edge weight labels
-#     edge_labels = nx.get_edge_attributes(G, "weight")
-#     nx.draw_networkx_edge_labels(G, pos, edge_labels)
-
-#     buf = io.BytesIO()
-#     plt.savefig(buf, format='png')
-#     return buf
-
-
 
 import numpy as np
 import networkx as nx
@@ -234,8 +152,8 @@ def makeTermGraph(table, authors, author_matrix):
         value = int(author_matrix[row_index, 2][0])
         G.add_edge(authors[x], authors[y], weight=value)
 
-    fig, ax = plt.subplots(figsize=(10,8)) # increase plot size to 10x8 inches
-    pos = nx.spring_layout(G, seed=7, k=0.5) # decrease k parameter to increase spacing between nodes
+    fig, ax = plt.subplots(figsize=(50,40)) # increase plot size to 10x8 inches
+    pos = nx.spring_layout(G, seed=7, k=0.4) # decrease k parameter to increase spacing between nodes
     nx.draw_networkx_nodes(G, pos, node_size=200, alpha=0.7) # increase node size to 200
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=1, alpha=0.5, edge_color="b")
     nx.draw_networkx_labels(G, pos, font_size=8, font_family="sans-serif")

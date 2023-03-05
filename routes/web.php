@@ -38,8 +38,9 @@ function getData(){
         if($flag<=0) continue;
         // if($flag==38)echo $row['authors'];
         if($flag>60) break;
-        $keywords = preg_split('/\s*,\s*/', $row['keywords']);
-        $authors = preg_split('/\s*,\s*/', $row['authors']);
+        $keywords = preg_split('/\s*[,;\/]\s*/', $row['keywords']);
+        $authors = preg_split('/\s*[,;\/]\s*/', $row['authors']);
+
        
         foreach ($authors as $key => $author) {
             if (strlen($author) <= 3) {
@@ -48,7 +49,7 @@ function getData(){
         }  
         sort($authors, SORT_NUMERIC);
           
-        $citingNew = preg_split('/\s*;\s*/', $row['citing_new']);
+        $citingNew = preg_split('/\s*[,;\/]\s*/', $row['citing_new']);
         foreach ($citingNew as $key => $citing) {
             if (strlen($citing) <= 1) {
                 unset($citingNew[$key]);
@@ -129,25 +130,6 @@ Route::get('/dashboard', function () {
     $agent = new Agent();
     return view('dashboard', ['agent' => $agent]);
 })->middleware(['auth'])->name('dashboard');
-
-Route::get('/db', function () {
-    $articles = DB::table('article')
-                ->select('no', 'keywords', 'abstracts', 'year', 'authors', 'citing_new')
-                ->get();
-
-    $data = json_decode($articles, true);
-
-    $result = [];
-
-    foreach ($data as $row) {
-        $keywords = preg_split('/\s*,\s*/', $row['keywords']);
-        $authors = preg_split('/\s*,\s*/', $row['authors']);
-        $citingNew = preg_split('/\s*;\s*/', $row['citing_new']);
-        $abstracts = $keywords;
-        $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
-    }
-    return $result;
-});
 
 
 require __DIR__.'/auth.php';

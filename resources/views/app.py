@@ -148,7 +148,7 @@ def makeTable2(author_matrix,authors):
     for x in authors:
         authortmp=[]
         for y in author_matrix:
-            if y[1] in x:
+            if y[1] == x:
                 try:
                     authortmp.append(y[2])
                 except:

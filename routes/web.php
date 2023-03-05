@@ -22,7 +22,7 @@ Route::get('/', function () {
     return view('home');
 });
 
-Route::get('/data/rank', function () {
+function getData(){
     $articles = DB::table('article')
                 ->select('no', 'keywords', 'abstracts', 'year', 'authors', 'citing_new')
                 ->get();
@@ -34,8 +34,10 @@ Route::get('/data/rank', function () {
     $flag=0;
     foreach ($data as $row) {
         $flag++;
-        if($flag==44||$flag==48||$flag==49||$flag==50)continue;
-        if($flag>51) break;
+        // if($flag==44||$flag==44||$flag==48||$flag==49||$flag==50)continue;
+        if($flag<=0) continue;
+        // if($flag==38)echo $row['authors'];
+        if($flag>60) break;
         $keywords = preg_split('/\s*,\s*/', $row['keywords']);
         $authors = preg_split('/\s*,\s*/', $row['authors']);
        
@@ -56,13 +58,6 @@ Route::get('/data/rank', function () {
 
         $abstracts = $keywords;
 
-        if($flag==48){
-            // continue;
-
-            // return [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
-        } 
-
-
         if(strlen($row['citing_new'])==1){
             $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors];
         }         
@@ -70,12 +65,12 @@ Route::get('/data/rank', function () {
             $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
         }    
     }
-    // for($i=0;$i<1;$i++){
-    //     array_push($result,["a100",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 1"],["a1"]]);
-    //     array_push($result,["a101",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 2"],["a1"]]);
-    //     array_push($result,["a102",["ssdfsfsd"],["ssdfsfsd"],"2222",["Muhammad Al Fatih 3"],["E01"]]);
-    // }
-    
+    return $result;
+}
+
+
+Route::get('/data/rank', function () {
+    $result = getData();
     // transporse table
     // https://stackoverflow.com/questions/6297591/how-to-invert-transpose-the-rows-and-columns-of-an-html-table
     $response = Http::timeout(999999)->post('http://127.0.0.1:5000/data/rank', [
@@ -92,58 +87,27 @@ Route::get('/data/rank', function () {
     ]);
     // return $response;
     // return json_decode($response);
-    return view('rank', ['authors'=> $response[0],'rank' => $response[1]]);
+    $authors = $response[0];
+    $ranks =  $response[1][1];
+
+    // Combine the authors and ranks into an array of arrays
+    $author_ranks = array();
+    for ($i = 0; $i < count($authors); $i++) {
+        $author_ranks[] = array($authors[$i], $ranks[$i]);
+    }
+
+    // Sort the author-rank pairs based on the rank (ascending order)
+    usort($author_ranks, function($a, $b) {
+        return $a[1] - $b[1];
+    });
+
+    return view('rank',  ['authors'=> $response[0],'ranktable' => $response[1][0],'rank' => $response[1][1],'author_ranks' => $author_ranks]);
 
 });
 
 Route::get('/data/graph', function () {
-    $articles = DB::table('article')
-                ->select('no', 'keywords', 'abstracts', 'year', 'authors', 'citing_new')
-                ->get();
+    $result = getData();
 
-    $data = json_decode($articles, true);
-
-    $result = [];
-
-    $flag=0;
-    foreach ($data as $row) {
-        $flag++;
-        if($flag==44||$flag==48)continue;
-        if($flag>48) break;
-        $keywords = preg_split('/\s*,\s*/', $row['keywords']);
-        $authors = preg_split('/\s*,\s*/', $row['authors']);
-       
-        foreach ($authors as $key => $author) {
-            if (strlen($author) <= 3) {
-                unset($authors[$key]);
-            }
-        }  
-        sort($authors, SORT_NUMERIC);
-          
-        $citingNew = preg_split('/\s*;\s*/', $row['citing_new']);
-        foreach ($citingNew as $key => $citing) {
-            if (strlen($citing) <= 1) {
-                unset($citingNew[$key]);
-            }
-        }
-        sort($citingNew, SORT_NUMERIC);
-
-        $abstracts = $keywords;
-
-        if($flag==48){
-            // continue;
-
-            // return [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
-        } 
-
-
-        if(strlen($row['citing_new'])==1){
-            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors];
-        }         
-        else{
-            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
-        }    
-    }
     $response = Http::post('http://127.0.0.1:5000/data/graph', [
         'data' => 
         $result

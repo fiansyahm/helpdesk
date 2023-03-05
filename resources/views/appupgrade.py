@@ -218,8 +218,9 @@ def makeTable2(author_matrix,authors):
 
 
 import numpy as np
-import matplotlib.pyplot as plt
 import networkx as nx
+import matplotlib.pyplot as plt
+import io
 
 def makeTermGraph(table, authors, author_matrix):
     author_matrix = np.array(author_matrix)
@@ -227,44 +228,23 @@ def makeTermGraph(table, authors, author_matrix):
 
     rows, cols = np.where(table > 0)
     edges = zip(rows.tolist(), cols.tolist())
-    for i in author_matrix:
-        if i[2]!='0':
-            print(i)
-        # if i[2]>=1:
-        #     print("[author x]"+i[0])
-        #     print("[author y]"+i[1])
-        #     print("[value]"+str(i[2]))
 
     for x, y in edges:
         row_index = np.where((author_matrix[:,0] == authors[y]) & (author_matrix[:,1] == authors[x]))
-        # mendapatkan nilai dalam bentuk integer
         value = int(author_matrix[row_index, 2][0])
+        G.add_edge(authors[x], authors[y], weight=value)
 
-        # print("valuenya:"+str(value))
-        # print("author x:"+str(authors[x]))
-        # print("author y:"+str(authors[y]))
-        G.add_edge(authors[x], authors[y], weight=int(value))
-
-# k=jarak antar node
-    pos = nx.spring_layout(G, seed=7, k=1) # positions for all nodes - seed for reproducibility
-
-# nodes size=besar node
-    nx.draw_networkx_nodes(G, pos, node_size=100, alpha=0.7)
-
-    # edges
+    fig, ax = plt.subplots(figsize=(10,8)) # increase plot size to 10x8 inches
+    pos = nx.spring_layout(G, seed=7, k=0.5) # decrease k parameter to increase spacing between nodes
+    nx.draw_networkx_nodes(G, pos, node_size=200, alpha=0.7) # increase node size to 200
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=1, alpha=0.5, edge_color="b")
-
-    # node labels
-    # ukuran nama penulis
-    nx.draw_networkx_labels(G, pos, font_size=5, font_family="sans-serif")
-
-    # edge weight labels
+    nx.draw_networkx_labels(G, pos, font_size=8, font_family="sans-serif")
     edge_labels = nx.get_edge_attributes(G, "weight")
-    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=2)
-
+    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     return buf
+
 
 def addTable2TotalRowAndColoumn(pretable2,authors):
     # Initialize list for row and column totals

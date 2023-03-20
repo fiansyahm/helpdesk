@@ -140,21 +140,32 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import io
 
-def makeTermGraph(table, authors, author_matrix):
+def makeTermGraph(table, authors, author_matrix,author_rank):
     author_matrix = np.array(author_matrix)
     G = nx.Graph()
+
+    # Add nodes to the graph
+    for author in authors:
+        G.add_node(author)
+
+    node_sizes = [size * 300 for size in author_rank]
+    my_node_sizes = [size if size > 0 else 10 for size in node_sizes]
+
 
     rows, cols = np.where(table > 0)
     edges = zip(rows.tolist(), cols.tolist())
 
+    # Add edges to the graph with weights
     for x, y in edges:
         row_index = np.where((author_matrix[:,0] == authors[y]) & (author_matrix[:,1] == authors[x]))
         value = int(author_matrix[row_index, 2][0])
         G.add_edge(authors[x], authors[y], weight=value)
 
-    fig, ax = plt.subplots(figsize=(50,40)) # increase plot size to 10x8 inches
+    # Draw the graph
+    # fig, ax = plt.subplots(figsize=(15,12)) # increase plot size to 10x8 inches
+    fig, ax = plt.subplots(figsize=(90,72)) # increase plot size to 10x8 inches
     pos = nx.spring_layout(G, seed=7, k=0.4) # decrease k parameter to increase spacing between nodes
-    nx.draw_networkx_nodes(G, pos, node_size=200, alpha=0.7) # increase node size to 200
+    nx.draw_networkx_nodes(G, pos, node_size=my_node_sizes, alpha=0.7) # increase node size to 200
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=1, alpha=0.5, edge_color="b")
     nx.draw_networkx_labels(G, pos, font_size=8, font_family="sans-serif")
     edge_labels = nx.get_edge_attributes(G, "weight")
@@ -196,7 +207,7 @@ def makeNewAdjMatrix(pretable3,lenauthor):
     print(table3)
     return pretable3
 
-def rank(pretable3,lenauthor):
+def rank(pretable3,lenauthor,name):
     import numpy as np
 
     # Set damping factor
@@ -219,6 +230,9 @@ def rank(pretable3,lenauthor):
         if diff < 0.001:
             break
         row = row_new
+
+    if name == "graph":
+        return row
 
     # Calculate ranking from PageRank
     rank = [sorted(row, reverse=True).index(x) for x in row]
@@ -275,9 +289,15 @@ def data(name):
 
     # errornyadisini
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)
+
+        # add total coloum & row in table 2
+        raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)
+        # makeNewAdjMatrix
+        newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
         if name == "graph":
+            author_rank=rank(newAdjMatrixs,len(authors),name)
         # Make Term Graph
-            output=makeTermGraph(table2,authors,author_matrix)
+            output=makeTermGraph(table2,authors,author_matrix,author_rank)
             output.seek(0)
             import base64
             my_base64_jpgData = base64.b64encode(output.read())
@@ -286,12 +306,8 @@ def data(name):
             else:
                 return my_base64_jpgData
         elif name == "rank":
-        # add total coloum & row in table 2
-            raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)
-        # makeNewAdjMatrix
-            newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
         # rank author
-            return [authors,rank(newAdjMatrixs,len(authors))]  
+            return [authors,rank(newAdjMatrixs,len(authors),name)]  
 
 if __name__ == "__main__":
     app.run(debug = True)

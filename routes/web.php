@@ -61,12 +61,17 @@ function getData(){
         $abstracts = $keywords;
 
         if(strlen($row['citing_new'])==1){
-            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors];
+            // for($i=1; $i<=10; $i++){
+                $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors];
+            // }
         }         
         else{
-            $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
+            // for($i=1; $i<=10; $i++){
+                $result[] = [$row['no'], $keywords, $abstracts,(string) $row['year'],$authors,  $citingNew];
+            // }
         }    
     }
+    $result[] = ["dummywriter", [], [],[],["dummywriter"]];
     return $result;
 }
 
@@ -86,6 +91,7 @@ Route::get('/data/rank', function () {
             //     , [ "a5", ['dj','dk'],     ['a','dj','dk','m','r']  ,'1994',['p1','p7']      ,['a1','a2','a3']                       ]
             //     , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
             // ]
+        ,'outer'=>true
     ]);
     // return $response;
     // return json_decode($response);
@@ -121,6 +127,7 @@ Route::get('/data/graph', function () {
         //     , [ "a5", ['dj','dk'],     ['a','dj','dk','m','r']  ,'1994',['p1','p7']      ,['a1','a2','a3']                       ]
         //     , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
         // ]
+        ,'outer'=>true
     ]);
     // return $response;
     return view('graph', ['src' => "data:image/png;base64, $response"]);

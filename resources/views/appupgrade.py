@@ -140,25 +140,37 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import io
 
-def makeTermGraph(table, authors, author_matrix,author_rank,outer_author):
+def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking):
+
+    # penulis_list = []
+    # for i in range(len(authors)):
+    #     penulis_list.append((authors[i], ranking[i]))
+    # penulis_list = sorted(penulis_list, key=lambda x: x[1])
+    # top_penulis_list = penulis_list[-20:]
+    # top_authors = [author for author, rank in top_penulis_list]
+
 
     rank_outer_author=author_rank[len(author_rank)-1]
     author_matrix = np.array(author_matrix)
     G = nx.Graph()
-
-
     labels = {}
     my_node_sizes=[]
     my_node_colors=[]
     my_node_label_color=[]
+
+    count=-1
     # Add nodes to the graph
     for author, size in zip(authors, author_rank):
+        count+=1
         G.add_node(author)
             
         if size > rank_outer_author:
             # jika iya nilainya *300
             my_node_sizes.append(size *300)
-            my_node_colors.append('blue')
+            if ranking[count]<=20:
+                my_node_colors.append('purple')
+            else:
+                my_node_colors.append('blue')
             labels[author]=author
         else:
             # jika tidak dirujuk nilainya 10
@@ -327,7 +339,7 @@ def data(name):
         if name == "graph":
             rankfortermgraph,author_rank=rank(newAdjMatrixs,len(authors),name)
         # Make Term Graph
-            output=makeTermGraph(table2,authors,author_matrix,author_rank,outer_author)
+            output=makeTermGraph(table2,authors,author_matrix,author_rank,outer_author,rankfortermgraph)
             output.seek(0)
             import base64
             my_base64_jpgData = base64.b64encode(output.read())

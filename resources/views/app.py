@@ -9,6 +9,7 @@ from flask import Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib
+from tabulate import tabulate
 matplotlib.use('Agg')
 from matplotlib.pylab import *
 
@@ -54,10 +55,6 @@ def login():
 
 
 def getData(data=None):
-        from tabulate import tabulate
-        title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
-        print("data masukan:")
-        print(data)
         if data==None:
             table = [  
                 [ "a1", ['a','b','c'],   ['a','b','c','k','l']    ,'1993',['p1','p2']                                              ]
@@ -69,9 +66,6 @@ def getData(data=None):
                 ]
         else:
             table=data
-        print("tabel 1")
-        print(title)
-        print(tabulate(table))
         return(table)
 
 def getArticleIdAuthorReferencesAndAuthor(table):
@@ -88,10 +82,10 @@ def getArticleIdAuthorReferencesAndAuthor(table):
         except:
             print("")
         pairs.append(row)
+    authors = sorted(set(authors))
     return pairs,authors
 
 def author_matrixs(authors):
-    print("Semua Kemungkinan Relasi Antar Penulis")
     author_matrix=[]
     for author_x in authors:
         for author_y in authors:
@@ -99,42 +93,44 @@ def author_matrixs(authors):
             row.append(author_x)
             row.append(author_y)
             author_matrix.append(row)
-    for x in author_matrix:
-        print(x)
     return author_matrix
+
 def getTable2Data(pairs,author_matrix):
+    print("getTable2Data")
     for i in pairs:
+        penulisList=i[1]
+        authorListExpand=[]
         try:
-            penulisList=i[1]
             authorList=i[2]
-            authorListExpand=[]
-            print(penulisList+authorList)
+            # print(penulisList+authorList)
             for author in authorList:
-                row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
-                # row_author=pairs[index_2d(pairs, author)][1]
+                # row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
+                row_author=pairs[index_2d(pairs, author)][1]
                 print(row_author)
                 for every_author in row_author:
-                    print(every_author)
+                    print("this is"+every_author)
                     authorListExpand.append(every_author)
             print("\n")
-            for authorListExpandChild in authorListExpand:
-                print("child:")
-                print(authorListExpandChild)
-            print("\n")
-
-            for penulis in penulisList:
-                for child in authorListExpand:
-                    if penulis == child:
-                        continue
-                    print("penulis:",penulis,child)
-                    try:
-                        index=author_matrix.index([penulis, child])
-                        author_matrix[index].append(authorListExpand.count(child))
-                        print("nilai:",author_matrix[index][2])
-                    except:
-                        continue
         except:
-            continue
+            pass
+
+        # for authorListExpandChild in authorListExpand:
+        #     print("child:")
+        #     print(authorListExpandChild)
+        #     print("\n")
+
+        for penulis in penulisList:
+            for child in authorListExpand:
+                print("penulis:",penulis,child)
+                if penulis == child:
+                    continue
+                # print("penulis:",penulis,child)
+                try:
+                    index=author_matrix.index([penulis, child])
+                    author_matrix[index].append(authorListExpand.count(child))
+                    print("nilai:",author_matrix[index][2])
+                except:
+                    continue
     return author_matrix
 
 def index_2d(myList, v):
@@ -298,34 +294,35 @@ def rank(pretable3,lenauthor):
 
 def data(name):
     if request.method == 'POST' or request.method == 'GET':
-    # tabel 1
-        # requestjson=request.get_json()
-        # if request.method == 'POST':
-        #     table=getData(1,requestjson["data"]);
-        # if request.method == 'GET':
-        #     table=getData(0,None);
         if request.method == 'POST':
             table=getData(request.get_json()["data"]);
         elif request.method == 'GET':
             table=getData();
         
-    # get pair ArticleId,Author,& References
-    # get authors
+        print("Tabel 1")
+        title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
+        print(title)
+        print(tabulate(table))
+        
+        
+    # pair ArticleId,Author,& References & author
         pairs,authors=getArticleIdAuthorReferencesAndAuthor(table)
-        for i in pairs:
-            print(i)
-            print("\n")
-        authors=sorted(set(authors))
-        for y in authors:
-            print(y)
-            print("\n")
-    # posibly author can be arranged
+        # for i in pairs:
+        #     print(i)
+        #     print("\n")
+        # for y in authors:
+        #     print(y)
+        #     print("\n")
+        
+    # pasangan yang memungkinkan antara 2 penulis
         author_matrix=author_matrixs(authors) 
-    # get data to make table 2(step 1)
+
+
+    # ambil data untuk tabel 2(step 1)
         author_matrix_and_relation=getTable2Data(pairs,author_matrix)
         # for x in author_matrix_and_relation:
         #     print(x)
-    # get data to make table 2(step 2)
+        # return author_matrix_and_relation
 
     # errornyadisini
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)

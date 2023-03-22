@@ -95,43 +95,32 @@ def author_matrixs(authors):
             author_matrix.append(row)
     return author_matrix
 
-def getTable2Data(pairs,author_matrix):
+def getTable2Data(pairs,search_matrix):
+    author_matrixs=[]
+    for i in search_matrix:
+        author_matrixs.append([i[0],i[1],0])
+
     print("getTable2Data")
     for i in pairs:
         penulisList=i[1]
-        authorListExpand=[]
         try:
             authorList=i[2]
             # print(penulisList+authorList)
             for author in authorList:
-                # row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
-                row_author=pairs[index_2d(pairs, author)][1]
-                print(row_author)
-                for every_author in row_author:
-                    print("this is"+every_author)
-                    authorListExpand.append(every_author)
+                row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
+                # row_author=pairs[index_2d(pairs, author)][1]
+                
+                for author in penulisList:
+                    for row in row_author:
+                        if author != row:
+                            index=search_matrix.index([author, row])
+                            author_matrixs[index][2]+=1
+                            
             print("\n")
         except:
             pass
 
-        # for authorListExpandChild in authorListExpand:
-        #     print("child:")
-        #     print(authorListExpandChild)
-        #     print("\n")
-
-        for penulis in penulisList:
-            for child in authorListExpand:
-                print("penulis:",penulis,child)
-                if penulis == child:
-                    continue
-                # print("penulis:",penulis,child)
-                try:
-                    index=author_matrix.index([penulis, child])
-                    author_matrix[index].append(authorListExpand.count(child))
-                    print("nilai:",author_matrix[index][2])
-                except:
-                    continue
-    return author_matrix
+    return author_matrixs
 
 def index_2d(myList, v):
     for i, x in enumerate(myList):

@@ -290,7 +290,7 @@ def rank(pretable3,lenauthor):
     table5=pd.DataFrame(table4)
     print("tabel 3: Ranking")
     print(table5.T)
-    return table4
+    return table4,rank
 
 
 

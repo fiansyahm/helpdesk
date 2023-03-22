@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, render_template, redirect, url_for,request
 from flask import make_response
 from flask_cors import CORS
@@ -13,7 +14,17 @@ import pandas as pd
 matplotlib.use('Agg')
 from matplotlib.pylab import *
 
+# from flask_mysqldb import MySQL
 app = Flask(__name__)
+# app.config['MYSQL_HOST'] = 'localhost' # ganti dengan host dari MySQL Anda
+# app.config['MYSQL_USER'] = 'root' # ganti dengan username MySQL Anda
+# app.config['MYSQL_PASSWORD'] = '' # ganti dengan password MySQL Anda
+# app.config['MYSQL_DB'] = 'test' # ganti dengan nama database yang ingin Anda gunakan
+# app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+
+# mysql = MySQL(app)
+
 CORS(app)
 
 @app.route("/")
@@ -51,8 +62,21 @@ def login():
         output = io.BytesIO()
         FigureCanvas(fig).print_png(output)
         return Response(output.getvalue(), mimetype='image/png')
+   
+# @app.route('/create_graphimage_table')
+# def create_graphimage_table():
+#     cur = mysql.connection.cursor()
+#     cur.execute("CREATE TABLE graphimage (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, nama_project VARCHAR(255) NOT NULL, base64code LONGTEXT NOT NULL)")
+#     mysql.connection.commit()
+#     cur.close()
+#     return "Tabel berhasil dibuat!"
 
-
+# def query(nama_project,base64code):
+#     cur = mysql.connection.cursor()
+#     cur.execute("INSERT INTO graphimage (nama_project, base64code) VALUES (%s, %s)", (nama_project, base64code))
+#     mysql.connection.commit()
+#     cur.close()
+#     return "Data berhasil disimpan!"
 
 def getData(data=None):
         from tabulate import tabulate
@@ -141,15 +165,6 @@ import matplotlib.pyplot as plt
 import io
 
 def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking):
-
-    # penulis_list = []
-    # for i in range(len(authors)):
-    #     penulis_list.append((authors[i], ranking[i]))
-    # penulis_list = sorted(penulis_list, key=lambda x: x[1])
-    # top_penulis_list = penulis_list[-20:]
-    # top_authors = [author for author, rank in top_penulis_list]
-
-
     rank_outer_author=author_rank[len(author_rank)-1]
     author_matrix = np.array(author_matrix)
     G = nx.Graph()
@@ -157,6 +172,19 @@ def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking
     my_node_sizes=[]
     my_node_colors=[]
     my_node_label_color=[]
+
+    author_ranking = []
+    count=-1
+    for author in authors:
+        count+=1
+        author_ranking.append((author, author_rank[count]))
+
+    sorted_authors = sorted(author_ranking, key=lambda x: x[1], reverse=True)
+
+    # get the top 20 author names
+    top_authors = [x[0] for x in sorted_authors[:ranking]]
+    
+
 
     count=-1
     # Add nodes to the graph
@@ -167,7 +195,7 @@ def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking
         if size > rank_outer_author:
             # jika iya nilainya *300
             my_node_sizes.append(size *300)
-            if ranking[count]<=20:
+            if author in top_authors:
                 my_node_colors.append('purple')
             else:
                 my_node_colors.append('blue')
@@ -209,6 +237,13 @@ def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking
     nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
+
+    output=buf
+    output.seek(0)
+    my_base64_jpgData = base64.b64encode(output.read())
+    # query("project22maret",my_base64_jpgData)
+
+
     return buf
 
 
@@ -307,8 +342,8 @@ def data(name):
         elif request.method == 'GET':
             table=getData();
         
-
         outer_author= request.get_json()["outer"]
+        top_author_rank= request.get_json()["author-rank"]
 
         
     # get pair ArticleId,Author,& References
@@ -339,7 +374,7 @@ def data(name):
         if name == "graph":
             rankfortermgraph,author_rank=rank(newAdjMatrixs,len(authors),name)
         # Make Term Graph
-            output=makeTermGraph(table2,authors,author_matrix,author_rank,outer_author,rankfortermgraph)
+            output=makeTermGraph(table2,authors,author_matrix,author_rank,outer_author,top_author_rank)
             output.seek(0)
             import base64
             my_base64_jpgData = base64.b64encode(output.read())

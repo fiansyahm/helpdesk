@@ -38,7 +38,7 @@ function getData(){
         // if($flag==44||$flag==44||$flag==48||$flag==49||$flag==50)continue;
         // if($flag<=0) continue;
         // if($flag==38)echo $row['authors'];
-        // if($flag>70) break;
+        if($flag>10) break;
         $keywords = preg_split('/\s*[,;\/]\s*/', $row['keywords']);
         $authors = preg_split('/\s*[,;\/]\s*/', $row['authors']);
 
@@ -80,7 +80,8 @@ Route::get('/data/rank', function () {
     $result = getData();
     // transporse table
     // https://stackoverflow.com/questions/6297591/how-to-invert-transpose-the-rows-and-columns-of-an-html-table
-    $response = Http::timeout(600)->post('http://127.0.0.1:5000/data/rank', [
+    set_time_limit(6000);
+    $response = Http::timeout(6000)->post('http://127.0.0.1:5000/data/rank', [
         'data' => 
             $result
             // [  
@@ -92,6 +93,7 @@ Route::get('/data/rank', function () {
             //     , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
             // ]
         ,'outer'=>true
+        ,'author-rank'=>10
     ]);
     // return $response;
     // return json_decode($response);
@@ -115,8 +117,8 @@ Route::get('/data/rank', function () {
 
 Route::get('/data/graph', function () {
     $result = getData();
-
-    $response =  Http::timeout(600)->post('http://127.0.0.1:5000/data/graph', [
+    set_time_limit(6000);
+    $response =  Http::timeout(6000)->post('http://127.0.0.1:5000/data/graph', [
         'data' => 
         $result
         // [  
@@ -128,8 +130,9 @@ Route::get('/data/graph', function () {
         //     , [ "a6", ['d','ac','ad'], ['d','ac','ad','s','t']  ,'1994',['p8','p9']      ,['a1','a3']                            ]
         // ]
         ,'outer'=>true
+        ,'author-rank'=>10
     ]);
-    // return $response;
+    // return strlen($response);
     return view('graph', ['src' => "data:image/png;base64, $response"]);
 });
 

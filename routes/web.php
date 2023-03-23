@@ -38,7 +38,7 @@ function getData(){
         // if($flag==44||$flag==44||$flag==48||$flag==49||$flag==50)continue;
         // if($flag<=0) continue;
         // if($flag==38)echo $row['authors'];
-        if($flag>50) break;
+        if($flag>40) break;
         $keywords = preg_split('/\s*[,;\/]\s*/', $row['keywords']);
         $authors = preg_split('/\s*[,;\/]\s*/', $row['authors']);
 

@@ -11,6 +11,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib
 import pandas as pd
+from tabulate import tabulate
 matplotlib.use('Agg')
 from matplotlib.pylab import *
 
@@ -79,10 +80,6 @@ def login():
 #     return "Data berhasil disimpan!"
 
 def getData(data=None):
-        from tabulate import tabulate
-        title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
-        print("data masukan:")
-        print(data)
         if data==None:
             table = [  
                 [ "a1", ['a','b','c'],   ['a','b','c','k','l']    ,'1993',['p1','p2']                                              ]
@@ -94,9 +91,6 @@ def getData(data=None):
                 ]
         else:
             table=data
-        print("tabel 1")
-        print(title)
-        print(tabulate(table))
         return(table)
 
 def getArticleIdAuthorReferencesAndAuthor(table):
@@ -113,7 +107,6 @@ def getArticleIdAuthorReferencesAndAuthor(table):
     return pairs,authors
 
 def author_matrixs(authors):
-    print("Semua Kemungkinan Relasi Antar Penulis")
     from itertools import product
 
     # Get all possible author pairs (including self-referential pairs)
@@ -233,6 +226,7 @@ def makeTermGraph(table, authors, author_matrix,author_rank,outer_author,ranking
     nx.draw_networkx_nodes(G, pos, node_size=my_node_sizes, alpha=0.7, node_color=my_node_colors) # increase node size to 200
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=1, alpha=0.5, edge_color="b")    
     nx.draw_networkx_labels(G, pos,labels,font_size=8, font_family="sans-serif",font_color="black")
+    
     edge_labels = nx.get_edge_attributes(G, "weight")
     nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
     buf = io.BytesIO()
@@ -309,7 +303,7 @@ def rank(pretable3,lenauthor,name):
     rank = [x + 1 for x in rank]
 
     if name == "graph":
-        return rank,row_new
+        return row_new
 
     # Add rank vector to table4
     table4.append(rank)
@@ -331,16 +325,16 @@ def rank(pretable3,lenauthor,name):
 
 def data(name):
     if request.method == 'POST' or request.method == 'GET':
-    # tabel 1
-        # requestjson=request.get_json()
-        # if request.method == 'POST':
-        #     table=getData(1,requestjson["data"]);
-        # if request.method == 'GET':
-        #     table=getData(0,None);
         if request.method == 'POST':
             table=getData(request.get_json()["data"]);
         elif request.method == 'GET':
             table=getData();
+        
+        print("Tabel 1")
+        title=[ 'Article-ID', 'Terms in Title and Keywords', 'Terms Found in Abstracts','Publication Year','Authors','References']
+        print(title)
+        print(tabulate(table))
+
         
         outer_author= request.get_json()["outer"]
         top_author_rank= request.get_json()["author-rank"]
@@ -362,17 +356,21 @@ def data(name):
         author_matrix_and_relation=getTable2Data(pairs,author_matrix)
         # for x in author_matrix_and_relation:
         #     print(x)
+        # return author_matrix_and_relation
+        # for x in author_matrix_and_relation:
+        #     print(x)
     # get data to make table 2(step 2)
 
     # errornyadisini
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)
+
 
         # add total coloum & row in table 2
         raw_table2WithRowCol=addTable2TotalRowAndColoumn(raw_table2,authors)
         # makeNewAdjMatrix
         newAdjMatrixs=makeNewAdjMatrix(raw_table2WithRowCol,len(authors))
         if name == "graph":
-            rankfortermgraph,author_rank=rank(newAdjMatrixs,len(authors),name)
+            author_rank=rank(newAdjMatrixs,len(authors),name)
         # Make Term Graph
             output=makeTermGraph(table2,authors,author_matrix,author_rank,outer_author,top_author_rank)
             output.seek(0)

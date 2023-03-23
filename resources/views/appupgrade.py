@@ -20,7 +20,7 @@ app = Flask(__name__)
 # app.config['MYSQL_HOST'] = 'localhost' # ganti dengan host dari MySQL Anda
 # app.config['MYSQL_USER'] = 'root' # ganti dengan username MySQL Anda
 # app.config['MYSQL_PASSWORD'] = '' # ganti dengan password MySQL Anda
-# app.config['MYSQL_DB'] = 'test' # ganti dengan nama database yang ingin Anda gunakan
+# app.config['MYSQL_DB'] = 'project_TA' # ganti dengan nama database yang ingin Anda gunakan
 # app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 

@@ -75,6 +75,16 @@ function getData(){
     return $result;
 }
 
+Route::get('/gambar-graph', function () {
+    $articles = DB::table('graphimage')
+                ->select('base64code')
+                ->get();
+
+    $data = json_decode($articles, true);
+    $response=$data[0]['base64code'];
+    return view('graph', ['src' => "data:image/png;base64, $response"]);
+});
+
 
 Route::get('/data/rank', function () {
     $result = getData();

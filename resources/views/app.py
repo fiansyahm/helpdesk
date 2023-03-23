@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, render_template, redirect, url_for,request
 from flask import make_response
 from flask_cors import CORS
@@ -12,9 +13,19 @@ import matplotlib
 from tabulate import tabulate
 matplotlib.use('Agg')
 from matplotlib.pylab import *
+from flask_mysqldb import MySQL
+
 
 app = Flask(__name__)
 CORS(app)
+from flask_mysqldb import MySQL
+app.config['MYSQL_HOST'] = 'localhost' # ganti dengan host dari MySQL Anda
+app.config['MYSQL_USER'] = 'root' # ganti dengan username MySQL Anda
+app.config['MYSQL_PASSWORD'] = '' # ganti dengan password MySQL Anda
+app.config['MYSQL_DB'] = 'project_TA' # ganti dengan nama database yang ingin Anda gunakan
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+mysql = MySQL(app)
+
 
 @app.route("/")
 def home():
@@ -51,6 +62,22 @@ def login():
         output = io.BytesIO()
         FigureCanvas(fig).print_png(output)
         return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/create_graphimage_table')
+def create_graphimage_table():
+    cur = mysql.connection.cursor()
+    cur.execute("CREATE TABLE graphimage (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, nama_project VARCHAR(255) NOT NULL, base64code LONGTEXT NOT NULL)")
+    mysql.connection.commit()
+    cur.close()
+    return "Tabel berhasil dibuat!"
+
+def query(nama_project,base64code):
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO graphimage (nama_project, base64code) VALUES (%s, %s)", (nama_project, base64code))
+    mysql.connection.commit()
+    cur.close()
+    return "Data berhasil disimpan!"
 
 
 
@@ -225,6 +252,12 @@ def makeTermGraph(table, authors,author_matrixs,author_rank,outer_author,ranking
     nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
+
+    output=buf
+    output.seek(0)
+    my_base64_jpgData = base64.b64encode(output.read())
+    query("project23maret",my_base64_jpgData)
+
     return buf
 
 

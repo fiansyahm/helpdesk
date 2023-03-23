@@ -369,7 +369,7 @@ def data(name):
             else:
                 return my_base64_jpgData
         elif name == "rank":
-            return [authors,table,author_rank]  
+            return [authors,[table,author_rank]]
 
 if __name__ == "__main__":
     app.run(debug = True)

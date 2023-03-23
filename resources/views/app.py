@@ -80,7 +80,7 @@ def getArticleIdAuthorReferencesAndAuthor(table):
         try:
             row.append(i[5])
         except:
-            print("")
+            row.append([])
         pairs.append(row)
     authors = sorted(set(authors))
     return pairs,authors
@@ -103,22 +103,25 @@ def getTable2Data(pairs,search_matrix):
     print("getTable2Data")
     for i in pairs:
         penulisList=i[1]
-        try:
-            authorList=i[2]
-            # print(penulisList+authorList)
-            for author in authorList:
-                row_author = [x[1] for i, x in enumerate(pairs) if author in x][0]
-                # row_author=pairs[index_2d(pairs, author)][1]
-                
+        authorList=i[2]
+        for author in authorList:
+            # try:
+                row_author=[]
+                for row in pairs:
+                    if author == row[0]:
+                        for author2 in row[1]:
+                            row_author.append(author2)
+                        # skip karena sudah ketemu
+                        break;
+
                 for author in penulisList:
                     for row in row_author:
                         if author != row:
                             index=search_matrix.index([author, row])
                             author_matrixs[index][2]+=1
-                            
-            print("\n")
-        except:
-            pass
+                print("\n")
+            # except:
+            #     pass
 
     return author_matrixs
 
@@ -145,65 +148,40 @@ def makeTable2(author_matrix,authors):
     print(table2)
     return table2,pretable2
 
-def makeTermGraph(table2):
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import networkx as nx
-    # rows, cols = np.where(table2 >= 1)
-    # edges = zip(rows.tolist(), cols.tolist())
-    # gr = nx.Graph()
-    # gr.add_edges_from(edges)
-    # nx.draw(gr, node_size=500,with_labels=True)
-    # plt.show()
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
 
-
+def makeTermGraph(table, authors,author_matrixs):
+    search_matrix=[]
+    for i in author_matrixs:
+        search_matrix.append([i[0],i[1]])
+    
     G = nx.Graph()
-    rows1, cols1 = np.where(table2 == 1)
-    edges1 = zip(rows1.tolist(), cols1.tolist())
-    for x,y in edges1:
-        G.add_edge(x, y, weight=1)
-    rows2, cols2 = np.where(table2 == 2)
-    edges2 = zip(rows2.tolist(), cols2.tolist())
-    for x,y in edges2:
-        G.add_edge(x, y, weight=2)
+    # Add nodes to the graph
+    for author in authors:
+        G.add_node(author)
 
-    elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] ==1 ]
-    esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] == 2]
+    for author_matrix in author_matrixs:
+        if author_matrix[2] > 0:
+            print("value:"+str(author_matrix[2]))
+            G.add_edge(author_matrix[0], author_matrix[1], weight=author_matrix[2])
 
-    pos = nx.spring_layout(G, seed=7)  # positions for all nodes - seed for reproducibility
-
-    # nodes
-    nx.draw_networkx_nodes(G, pos, node_size=700)
-
-    # edges
-    nx.draw_networkx_edges(G, pos, edgelist=elarge, width=6)
-    nx.draw_networkx_edges(
-        G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color="b", style="dashed"
-    )
-
-    # node labels
-    nx.draw_networkx_labels(G, pos, font_size=20, font_family="sans-serif")
-    # edge weight labels
-    edge_labels = nx.get_edge_attributes(G, "weight")
-    nx.draw_networkx_edge_labels(G, pos, edge_labels)
-
-    # ax = plt.gca()
-    # ax.margins(0.08)
-    # plt.axis("off")
-    # plt.tight_layout()
-    # print("term Graph")
-    # plt.show()
-    # return plt
-
+    # Draw the graph
+    # fig, ax = plt.subplots(figsize=(15,12)) # increase plot size to 10x8 inches
+    fig, ax = plt.subplots(figsize=(90,72)) # increase plot size to 10x8 inches
+    pos = nx.spring_layout(G, seed=7, k=0.4) # decrease k parameter to increase spacing between nodes
+    nx.draw_networkx_nodes(G, pos, node_size=200, alpha=0.7) # increase node size to 200
+    nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=1, alpha=0.5, edge_color="b")
+    nx.draw_networkx_labels(G, pos, font_size=8, font_family="sans-serif")
+    edge_labels = nx.get_edge_attributes(G,name='weight')
+    edge_labels={(u, v): weight_matrix for u, v, weight_matrix in G.edges(data='weight')}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     return buf
 
-    # G = nx.from_numpy_matrix(np.matrix(table2), create_using=nx.DiGraph)
-    # layout = nx.spring_layout(G)
-    # nx.draw(G, layout)
-    # nx.draw_networkx_edge_labels(G, pos=layout)
-    # plt.show()
+
 def addTable2TotalRowAndColoumn(pretable2,authors):
     import pandas as pd
     sumrow=[]
@@ -317,7 +295,7 @@ def data(name):
         table2,raw_table2=makeTable2(author_matrix_and_relation,authors)
         if name == "graph":
         # Make Term Graph
-            output=makeTermGraph(table2)
+            output=makeTermGraph(table2,authors,author_matrix_and_relation)
             output.seek(0)
             import base64
             my_base64_jpgData = base64.b64encode(output.read())

@@ -85,6 +85,28 @@ Route::get('/gambar-graph', function () {
     return view('graph', ['src' => "data:image/png;base64, $response"]);
 });
 
+use Illuminate\Http\Response;
+
+Route::get('/my-image', function() {
+    $articles = DB::table('graphimage')
+                ->select('base64code')
+                ->get();
+
+    $data = json_decode($articles, true);
+    $response=$data[0]['base64code'];
+
+    // Create an HTTP response with the image data
+    $headers = [
+        'Content-Type' => 'image/png',
+    ];
+    $statusCode = 200;
+    $content = base64_decode($response);
+    $response = new Response($content, $statusCode, $headers);
+
+    // Return the HTTP response
+    return $response;
+});
+
 
 Route::get('/data/rank', function () {
     $result = getData();

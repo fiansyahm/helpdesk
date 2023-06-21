@@ -209,7 +209,7 @@ Route::get('/run-python-graph', function () {
 
     // Call the Python script with the filename as an argument
     exec("python \"" . base_path('routes/myscript.py') . "\" calculate $filename", $output, $return_var);
-
+    return $output;
     // Print the output of the Python script
     $response=substr($output[69],2,-1);
 
